@@ -20,11 +20,14 @@ if __name__ == '__main__':
 
     f = h5py.File(args.filename,'w')
     for i in range(1,5):
-        dset = f.create_dataset('c%i' % i, (args.N, 2520), dtype='i', compression='lzf')
+        dset = f.create_dataset('c%i' % i, (args.N, 2520), chunks=(10,2520),
+                                dtype='i', compression='gzip')
 
+    t0 = time.time()
     for i in range(args.N):
-        print('\r%i/%i' % (i+1,args.N),end='')
-        sys.stdout.flush()
+        if i % 10 == 0:
+            print('\r%i/%i, %.2f Hz' % (i+1,args.N,(i+1)/(time.time() - t0)),end='')
+            sys.stdout.flush()
         try:
             digi.start_acquisition()
             while not digi.poll():
